@@ -1,0 +1,217 @@
+.tuner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;
+  gap: 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* ── Tuning presets ──────────────────────────────────────────── */
+.tuner-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  width: 100%;
+}
+
+.preset-btn {
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.preset-btn:active {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.preset-btn.active {
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.4);
+  color: #4ade80;
+}
+
+/* ── String reference notes ──────────────────────────────────── */
+.tuner-strings {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 10px 16px;
+  width: 100%;
+}
+
+.string-note {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.03em;
+  min-width: 28px;
+  text-align: center;
+  padding: 3px 5px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.string-note.detected {
+  color: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.string-note.tuned {
+  color: #4ade80;
+  background: rgba(74, 222, 128, 0.14);
+}
+
+/* ── Volume meter ────────────────────────────────────────────── */
+.volume-meter {
+  display: flex;
+  gap: 3px;
+  width: 100%;
+  padding: 0 2px;
+}
+
+.vol-bar {
+  flex: 1;
+  height: 10px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.07);
+  transition: background 0.06s;
+}
+
+.vol-bar.lit-green  { background: #4ade80; }
+.vol-bar.lit-yellow { background: #facc15; }
+.vol-bar.lit-red    { background: #f87171; }
+
+/* ── Semicircular gauge ──────────────────────────────────────── */
+.tuner-gauge-wrap {
+  width: 100%;
+  max-width: 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.tuner-gauge-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.gauge-labels {
+  display: flex;
+  justify-content: space-between;
+  width: 90%;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.25);
+  font-variant-numeric: tabular-nums;
+  margin-top: -4px;
+}
+
+/* ── Note readout ────────────────────────────────────────────── */
+.tuner-readout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  width: 100%;
+  min-height: 110px;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.tuner-readout.in-tune {
+  background: rgba(74, 222, 128, 0.08);
+  border-color: rgba(74, 222, 128, 0.2);
+}
+
+.readout-note {
+  font-size: 3.2rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  line-height: 1;
+}
+
+.readout-octave {
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  vertical-align: super;
+}
+
+.readout-freq {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.38);
+  font-variant-numeric: tabular-nums;
+}
+
+.readout-cents {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+  font-variant-numeric: tabular-nums;
+}
+
+.readout-intune {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #4ade80;
+  letter-spacing: 0.05em;
+}
+
+.readout-idle {
+  font-size: 3.2rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.12);
+}
+
+/* ── Error message ───────────────────────────────────────────── */
+.tuner-error {
+  font-size: 0.82rem;
+  color: #f87171;
+  text-align: center;
+  padding: 0 8px;
+}
+
+/* ── Start/Stop button ───────────────────────────────────────── */
+.tuner-toggle {
+  padding: 13px 44px;
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  border-radius: 999px;
+  color: #4ade80;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+
+.tuner-toggle:active {
+  background: rgba(74, 222, 128, 0.18);
+}
+
+.tuner-toggle.stop {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: #f87171;
+}
+
+.tuner-toggle.stop:active {
+  background: rgba(248, 113, 113, 0.18);
+}

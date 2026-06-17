@@ -1,0 +1,343 @@
+.theory {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Staff / sheet area ──────────────────────────────────────── */
+.sheet-area {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 16px 8px;
+  gap: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.staff-svg {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  overflow: visible;
+}
+
+.note-readout {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  height: 52px;
+  justify-content: center;
+  align-items: center;
+}
+
+.readout-name {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #f0f0f0;
+  line-height: 1;
+}
+
+.readout-oct {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.38);
+  align-self: flex-start;
+  margin-top: 5px;
+}
+
+.readout-hint {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.16);
+  letter-spacing: 0.03em;
+}
+
+/* ── Controls row ────────────────────────────────────────────── */
+.theory-controls {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.labels-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.labels-toggle-text {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Toggle track */
+.toggle-track {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 11px;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-track.on {
+  background: #4ade80;
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+.toggle-track.on .toggle-knob {
+  transform: translateX(16px);
+}
+
+/* ── Piano scroll container ──────────────────────────────────── */
+.piano-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 16px 16px 20px;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  display: flex;
+  align-items: center;
+}
+
+.piano-scroll::-webkit-scrollbar        { height: 3px; }
+.piano-scroll::-webkit-scrollbar-track  { background: transparent; }
+.piano-scroll::-webkit-scrollbar-thumb  {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+}
+
+/* ── Piano key canvas ────────────────────────────────────────── */
+.piano-keys {
+  position: relative;
+  height: 132px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ── Shared key base ─────────────────────────────────────────── */
+.pkey {
+  position: absolute;
+  cursor: pointer;
+  border-radius: 0 0 5px 5px;
+  box-sizing: border-box;
+  transition: background 0.06s;
+}
+
+/* ── White keys ──────────────────────────────────────────────── */
+.pkey.white {
+  background: #e6e6e6;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-top: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+  z-index: 1;
+}
+
+.pkey.white:active { background: #b8f5ce; }
+.pkey.white.lit    { background: #4ade80; }
+
+/* ── Black keys ──────────────────────────────────────────────── */
+.pkey.black {
+  background: #1c1c1c;
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  border-top: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 4px;
+  z-index: 2;
+}
+
+.pkey.black:active { background: #16a34a; }
+.pkey.black.lit    { background: #22c55e; }
+
+/* ── Key labels ──────────────────────────────────────────────── */
+.key-label-white {
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.72);
+  pointer-events: none;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.pkey.white.lit .key-label-white {
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.key-label-black {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.88);
+  pointer-events: none;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.pkey.black.lit .key-label-black {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+/* ── Quiz correct-answer highlight ───────────────────────────── */
+.pkey.white.quiz-correct { background: #4ade80; }
+.pkey.black.quiz-correct { background: #22c55e; }
+
+/* ── Theory sub-tabs ─────────────────────────────────────────── */
+.theory-tabs {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  padding: 3px;
+  margin: 10px 16px 0;
+  width: fit-content;
+  align-self: center;
+}
+
+.theory-tab-btn {
+  padding: 5px 22px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.theory-tab-btn.active {
+  background: rgba(74, 222, 128, 0.18);
+  color: #4ade80;
+}
+
+/* ── Quiz layout ─────────────────────────────────────────────── */
+.quiz-layout {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Note selector pills */
+.quiz-note-picker {
+  flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  padding: 10px 16px 8px;
+}
+
+.quiz-note-btn {
+  padding: 5px 0;
+  width: 42px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.quiz-note-btn.active {
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.4);
+  color: #4ade80;
+}
+
+/* Treble-only staff for quiz */
+.quiz-staff-area {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 6px 16px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.quiz-staff-svg {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  overflow: visible;
+}
+
+/* Score + feedback + button row */
+.quiz-info-row {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.quiz-score {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #4ade80;
+  min-width: 52px;
+}
+
+.quiz-feedback {
+  flex: 1;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.02em;
+}
+
+.quiz-feedback.wrong {
+  color: #f87171;
+}
+
+.quiz-start-btn {
+  padding: 6px 18px;
+  background: rgba(74, 222, 128, 0.14);
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  border-radius: 999px;
+  color: #4ade80;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.quiz-start-btn:active {
+  background: rgba(74, 222, 128, 0.28);
+}
+
+/* Quiz piano takes up remaining space */
+.quiz-piano-scroll {
+  flex: 1;
+  min-height: 0;
+}
