@@ -44,33 +44,110 @@
   color: #4ade80;
 }
 
-/* ── Pattern type (Major / Minor) ────────────────────────────── */
+/* ── Pattern type custom dropdown ────────────────────────────── */
 .scale-type-row {
   display: flex;
-  gap: 8px;
   justify-content: center;
 }
 
-.scale-type-btn {
-  padding: 7px 28px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.88rem;
-  font-weight: 600;
+.chord-mode-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  user-select: none;
 }
 
-.scale-type-btn:active {
-  background: rgba(255, 255, 255, 0.12);
+.pattern-dropdown {
+  position: relative;
+  display: inline-block;
 }
 
-.scale-type-btn.active {
-  background: rgba(74, 222, 128, 0.12);
-  border-color: rgba(74, 222, 128, 0.4);
+.pattern-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 140px;
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.pattern-trigger.open,
+.pattern-trigger:focus {
+  border-color: rgba(74, 222, 128, 0.45);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.pattern-trigger svg {
+  flex-shrink: 0;
+  opacity: 0.5;
+  transition: transform 0.2s;
+}
+
+.pattern-trigger.open svg {
+  transform: rotate(180deg);
+  opacity: 0.75;
+}
+
+.pattern-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  min-width: 100%;
+  background: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 4px;
+  z-index: 200;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.65);
+  max-height: 260px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.pattern-group-label {
+  padding: 7px 10px 3px;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  color: rgba(255, 255, 255, 0.28);
+  text-transform: uppercase;
+}
+
+.pattern-item {
+  display: block;
+  width: 100%;
+  padding: 7px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.88rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s, color 0.1s;
+}
+
+.pattern-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.pattern-item.active {
   color: #4ade80;
+  background: rgba(74, 222, 128, 0.1);
 }
 
 /* ── Root note picker ────────────────────────────────────────── */
@@ -94,9 +171,7 @@
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 
-.root-btn:active {
-  background: rgba(255, 255, 255, 0.12);
-}
+.root-btn:active { background: rgba(255, 255, 255, 0.12); }
 
 .root-btn.active {
   background: rgba(74, 222, 128, 0.12);
@@ -125,8 +200,16 @@
   letter-spacing: 0.04em;
 }
 
+.scale-description {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+  letter-spacing: 0.03em;
+}
+
 .scale-legend {
   display: flex;
+  align-items: center;
   gap: 16px;
   margin-top: 4px;
 }
@@ -140,32 +223,6 @@
 }
 
 .legend-item svg { flex-shrink: 0; }
-
-/* ── Fretboard ───────────────────────────────────────────────── */
-.fretboard-scroll {
-  flex-shrink: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior-x: contain;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.fretboard-scroll::-webkit-scrollbar        { height: 3px; }
-.fretboard-scroll::-webkit-scrollbar-track  { background: transparent; }
-.fretboard-scroll::-webkit-scrollbar-thumb  {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 2px;
-}
-
-.string-hint {
-  font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.2);
-  text-align: center;
-  letter-spacing: 0.01em;
-}
 
 /* ── Piano controls ──────────────────────────────────────────── */
 .sp-controls {
@@ -217,10 +274,9 @@
 /* ── Piano wrap — breaks out of .scales padding for full-width scroll ── */
 .piano-wrap {
   position: relative;
-  margin: 0 -16px;   /* escape the 16px padding on .scales */
+  margin: 0 -16px;
 }
 
-/* Edge fades so keys don't hard-clip at the scroll viewport boundary */
 .piano-wrap::before,
 .piano-wrap::after {
   content: '';
@@ -242,99 +298,48 @@
   background: linear-gradient(to left, #111 0%, transparent 100%);
 }
 
-/* ── Piano scroll container ──────────────────────────────────── */
-.piano-scroll {
+/* ── Piano scroll (scoped to .scales) ───────────────────────── */
+.scales .piano-scroll {
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 16px 0 20px;
+  padding: 16px 0 36px;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
   display: flex;
   align-items: center;
 }
 
-/* 24px matches the fade width — first/last key always clear of the fade */
-.piano-spacer {
+.scales .piano-scroll::-webkit-scrollbar        { height: 12px; }
+.scales .piano-scroll::-webkit-scrollbar-track  { background: rgba(255, 255, 255, 0.05); border-radius: 6px; }
+.scales .piano-scroll::-webkit-scrollbar-thumb  {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 6px;
+}
+
+/* ── Fretboard scrollbar (scoped to .scales, bigger touch target) */
+.scales .fretboard-scroll {
+  padding-bottom: 22px;
+}
+
+.scales .fretboard-scroll::-webkit-scrollbar        { height: 12px; }
+.scales .fretboard-scroll::-webkit-scrollbar-track  { background: rgba(255, 255, 255, 0.05); border-radius: 6px; }
+.scales .fretboard-scroll::-webkit-scrollbar-thumb  {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 6px;
+}
+
+.scales .piano-spacer {
   min-width: 24px;
   flex-shrink: 0;
 }
 
-.piano-scroll::-webkit-scrollbar        { height: 3px; }
-.piano-scroll::-webkit-scrollbar-track  { background: transparent; }
-.piano-scroll::-webkit-scrollbar-thumb  {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 2px;
-}
-
-/* ── Piano key canvas ────────────────────────────────────────── */
-.piano-keys {
-  position: relative;
-  height: 132px;
-  flex-shrink: 0;
-  user-select: none;
-}
-
-.pkey {
-  position: absolute;
-  cursor: pointer;
-  border-radius: 0 0 5px 5px;
-  box-sizing: border-box;
-  transition: background 0.06s;
-}
-
-/* White keys */
-.pkey.white {
-  background: #e6e6e6;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-top: none;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 4px;
-  z-index: 1;
-}
-
-.pkey.white:active     { background: #b8f5ce; }
+/* ── Piano key state classes (Scales-specific) ───────────────── */
 .pkey.white.lit-root   { background: #4ade80; }
 .pkey.white.lit-scale  { background: #86efac; }
-
-/* Black keys */
-.pkey.black {
-  background: #1c1c1c;
-  border: 1px solid rgba(0, 0, 0, 0.55);
-  border-top: none;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 4px;
-  z-index: 2;
-}
-
-.pkey.black:active     { background: #15803d; }
 .pkey.black.lit-root   { background: #22c55e; }
 .pkey.black.lit-scale  { background: #16a34a; }
 
-/* Key labels */
-.key-label-white {
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(0, 0, 0, 0.72);
-  pointer-events: none;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
 .pkey.white.lit-root .key-label-white  { color: rgba(0, 0, 0, 0.75); }
 .pkey.white.lit-scale .key-label-white { color: rgba(0, 0, 0, 0.6); }
-
-.key-label-black {
-  font-size: 8px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.88);
-  pointer-events: none;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
 .pkey.black.lit-root .key-label-black  { color: #fff; }
 .pkey.black.lit-scale .key-label-black { color: rgba(255, 255, 255, 0.9); }

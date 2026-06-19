@@ -1,0 +1,27 @@
+/* ── Fretboard scroll container ──────────────────────────────── */
+.fretboard-scroll {
+  flex-shrink: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 14px;   /* space between fretboard and scrollbar */
+}
+
+.fretboard-scroll::-webkit-scrollbar        { height: 5px; }
+.fretboard-scroll::-webkit-scrollbar-track  { background: rgba(255, 255, 255, 0.05); border-radius: 3px; }
+.fretboard-scroll::-webkit-scrollbar-thumb  {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
+}
+
+/* ── String label hint below the fretboard ───────────────────── */
+.string-hint {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.2);
+  text-align: center;
+  letter-spacing: 0.01em;
+}

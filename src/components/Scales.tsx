@@ -1,127 +1,139 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
+import { NOTE_NAMES, FLAT_NOTE_NAMES, ROOT_NAMES, PC_FROM_A, MIDDLE_C, WHITE_W, playNote, usesFlatEnharmonic } from '../music'
+import Piano from './Piano'
+import Fretboard, { NoteStyle } from './Fretboard'
 import './Scales.css'
 
-// ── Note data ─────────────────────────────────────────────────
-const NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-const IS_BLACK   = [false, true, false, true, false, false, true, false, true, false, true, false]
+// ── Chord groups for the dropdown ────────────────────────────
+const CHORD_GROUPS = [
+  { label: 'Triads',   types: ['Major', 'Minor', 'Sus2', 'Sus4', 'Diminished'] },
+  { label: 'Extended', types: ['Dominant 7', 'Major 7', 'Minor 7', 'Add9'] },
+]
 
 // ── Pattern intervals ─────────────────────────────────────────
 const SCALE_INTERVALS: Record<string, number[]> = {
-  'Major': [0, 2, 4, 5, 7, 9, 11],
-  'Minor': [0, 2, 3, 5, 7, 8, 10],
+  // Pentatonic & Blues
+  'Major Pentatonic': [0, 2, 4, 7, 9],
+  'Minor Pentatonic': [0, 3, 5, 7, 10],
+  'Blues':            [0, 3, 5, 6, 7, 10],
+  // Diatonic modes
+  'Major':            [0, 2, 4, 5, 7, 9, 11],
+  'Minor':            [0, 2, 3, 5, 7, 8, 10],
+  'Dorian':           [0, 2, 3, 5, 7, 9, 10],
+  'Phrygian':         [0, 1, 3, 5, 7, 8, 10],
+  'Lydian':           [0, 2, 4, 6, 7, 9, 11],
+  'Mixolydian':       [0, 2, 4, 5, 7, 9, 10],
+  'Locrian':          [0, 1, 3, 5, 6, 8, 10],
+  // Other heptatonic
+  'Harmonic Minor':   [0, 2, 3, 5, 7, 8, 11],
+  'Melodic Minor':    [0, 2, 3, 5, 7, 9, 11],
+  'Hungarian Minor':  [0, 2, 3, 6, 7, 8, 11],
+  'Double Harmonic':  [0, 1, 4, 5, 7, 8, 11],
+  // Symmetric
+  'Whole Tone':       [0, 2, 4, 6, 8, 10],
+  'Diminished':       [0, 2, 3, 5, 6, 8, 9, 11],
+  'Chromatic':        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
+}
+
+const SCALE_GROUPS = [
+  { label: 'Pentatonic & Blues', types: ['Major Pentatonic', 'Minor Pentatonic', 'Blues'] },
+  { label: 'Diatonic Modes',     types: ['Major', 'Minor', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Locrian'] },
+  { label: 'Other Scales',       types: ['Harmonic Minor', 'Melodic Minor', 'Hungarian Minor', 'Double Harmonic'] },
+  { label: 'Symmetric',          types: ['Whole Tone', 'Diminished', 'Chromatic'] },
+]
+
+const SCALE_DISPLAY_NAMES: Record<string, string> = {
+  'Major Pentatonic': 'Major Pentatonic',
+  'Minor Pentatonic': 'Minor Pentatonic',
+  'Blues':            'Blues',
+  'Major':            'Major / Ionian',
+  'Minor':            'Minor / Aeolian',
+  'Dorian':           'Dorian',
+  'Phrygian':         'Phrygian',
+  'Lydian':           'Lydian',
+  'Mixolydian':       'Mixolydian',
+  'Locrian':          'Locrian',
+  'Harmonic Minor':   'Harmonic Minor',
+  'Melodic Minor':    'Melodic Minor',
+  'Hungarian Minor':  'Hungarian Minor',
+  'Double Harmonic':  'Double Harmonic Major',
+  'Whole Tone':       'Whole Tone',
+  'Diminished':       'Diminished',
+  'Chromatic':        'Chromatic',
+}
+
+const SCALE_DESCRIPTIONS: Record<string, string> = {
+  'Major Pentatonic': '5-note major, no half steps',
+  'Minor Pentatonic': '5-note minor, foundation of rock & blues',
+  'Blues':            'Minor pentatonic + blue note (b5)',
+  'Major':            'Ionian · Major Scale',
+  'Minor':            'Aeolian · Natural minor',
+  'Dorian':           'Minor with a bright 6th',
+  'Phrygian':         'Dark, Spanish-sounding',
+  'Lydian':           'Dreamy, floating',
+  'Mixolydian':       'Bluesy, rock',
+  'Locrian':          'Unstable, tense',
+  'Harmonic Minor':   'Natural minor with raised 7th',
+  'Melodic Minor':    'Natural minor with raised 6th & 7th',
+  'Hungarian Minor':  'Exotic, gypsy flavor',
+  'Double Harmonic':  'Byzantine, Arabic sound',
+  'Whole Tone':       'All whole steps, 6-note symmetric',
+  'Diminished':       '8-note alternating whole & half steps',
+  'Chromatic':        'All 12 semitones',
 }
 const CHORD_INTERVALS: Record<string, number[]> = {
-  'Major': [0, 4, 7],
-  'Minor': [0, 3, 7],
+  'Major':       [0, 4, 7],
+  'Minor':       [0, 3, 7],
+  'Sus2':        [0, 2, 7],
+  'Sus4':        [0, 5, 7],
+  'Dominant 7':  [0, 4, 7, 10],
+  'Major 7':     [0, 4, 7, 11],
+  'Minor 7':     [0, 3, 7, 10],
+  'Diminished':  [0, 3, 6],
+  'Add9':        [0, 2, 4, 7],
 }
 
-// ── Piano layout ──────────────────────────────────────────────
-const WHITE_W = 36
-const WHITE_H = 132
-const BLACK_W = 22
-const BLACK_H = 82
-
-interface PKey { midi: number; note: string; octave: number; black: boolean; left: number }
-
-function buildKeys(): PKey[] {
-  const keys: PKey[] = []
-  let wi = 0
-  const wl: Record<number, number> = {}
-  for (let midi = 21; midi <= 108; midi++) {
-    const ni     = midi % 12
-    const black  = IS_BLACK[ni]
-    const note   = NOTE_NAMES[ni]
-    const octave = Math.floor(midi / 12) - 1
-    if (!black) {
-      wl[midi] = wi * WHITE_W
-      keys.push({ midi, note, octave, black, left: wi++ * WHITE_W })
-    } else {
-      keys.push({ midi, note, octave, black, left: wl[midi - 1] + WHITE_W - BLACK_W / 2 })
-    }
-  }
-  return keys
-}
-
-const KEYS     = buildKeys()
-const PIANO_W  = 52 * WHITE_W
-const MIDDLE_C = KEYS.find(k => k.midi === 60)!
-
-// ── Fretboard layout ──────────────────────────────────────────
-// Top of fretboard = high E, bottom = low E (player's view)
-const OPEN_STRINGS = [64, 59, 55, 50, 45, 40]  // E4 B3 G3 D3 A2 E2
-const NUM_FRETS    = 12
-const MARKER_FRETS = new Set([3, 5, 7, 9, 12])
-
-const TOP_PAD  = 30
-const BOT_PAD  = 20
-const LEFT_PAD = 32
-const NUT_X    = LEFT_PAD
-const NUT_W    = 4
-const FRET_W   = 44
-const STRING_H = 30
-const CIRCLE_R = 11
-
-const NUM_STRINGS = OPEN_STRINGS.length
-const FB_W = NUT_X + NUT_W + NUM_FRETS * FRET_W + 16
-const FB_H = TOP_PAD + (NUM_STRINGS - 1) * STRING_H + BOT_PAD
-
-function fretX(fret: number): number {
-  return fret === 0
-    ? NUT_X - CIRCLE_R - 3
-    : NUT_X + NUT_W + (fret - 0.5) * FRET_W
-}
-
-function strY(si: number): number {
-  return TOP_PAD + si * STRING_H
-}
-
-// ── Audio synthesis ───────────────────────────────────────────
-function playNote(midi: number, ctx: AudioContext) {
-  const freq = 440 * Math.pow(2, (midi - 69) / 12)
-  const now  = ctx.currentTime
-  const dur  = 1.8 + (108 - midi) / 87 * 1.5
-
-  const master = ctx.createGain()
-  master.gain.setValueAtTime(0, now)
-  master.gain.linearRampToValueAtTime(0.45, now + 0.008)
-  master.gain.exponentialRampToValueAtTime(0.25, now + 0.12)
-  master.gain.exponentialRampToValueAtTime(0.001, now + dur)
-  master.connect(ctx.destination)
-
-  ;[1, 2, 3, 4, 6].forEach((p, i) => {
-    const osc = ctx.createOscillator()
-    osc.type = 'sine'
-    osc.frequency.value = freq * p
-    const g = ctx.createGain()
-    g.gain.value = [0.5, 0.25, 0.12, 0.06, 0.02][i]
-    osc.connect(g)
-    g.connect(master)
-    osc.start(now)
-    osc.stop(now + dur + 0.05)
-  })
-}
-
-// ── Component ─────────────────────────────────────────────────
 type Mode       = 'scales' | 'chords'
 type Instrument = 'guitar' | 'piano'
 
 export default function Scales() {
-  const [mode, setMode]             = useState<Mode>('scales')
-  const [instrument, setInstrument] = useState<Instrument>('guitar')
-  const [root, setRoot]             = useState(4)          // E
+  const [mode, setMode]               = useState<Mode>('scales')
+  const [instrument, setInstrument]   = useState<Instrument>('guitar')
+  const [root, setRoot]               = useState(4)
   const [patternType, setPatternType] = useState('Major')
-  const [showLabels, setShowLabels] = useState(true)
+  const [showLabels, setShowLabels]   = useState(true)
+
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [chordMode, setChordMode]       = useState(false)
 
   const audioCtxRef    = useRef<AudioContext | null>(null)
   const pianoScrollRef = useRef<HTMLDivElement>(null)
+  const dropdownRef    = useRef<HTMLDivElement>(null)
 
-  const intervals  = (mode === 'scales' ? SCALE_INTERVALS : CHORD_INTERVALS)[patternType]
-  const noteSet    = new Set(intervals.map(i => (root + i) % 12))
-  const noteList   = intervals.map(i => NOTE_NAMES[(root + i) % 12]).join(' – ')
-  const patternLabel = `${NOTE_NAMES[root]} ${patternType} ${mode === 'chords' ? 'Chord' : 'Scale'}`
+  const closeDropdown = useCallback(() => setDropdownOpen(false), [])
 
-  // Scroll piano to middle C when switching to piano view
-  // +24 accounts for the left spacer inside piano-scroll
+  useEffect(() => {
+    if (!dropdownOpen) return
+    function onOutside(e: PointerEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        closeDropdown()
+      }
+    }
+    document.addEventListener('pointerdown', onOutside)
+    return () => document.removeEventListener('pointerdown', onOutside)
+  }, [dropdownOpen, closeDropdown])
+
+  const intervals    = (mode === 'scales' ? SCALE_INTERVALS : CHORD_INTERVALS)[patternType]
+  const noteSet      = new Set(intervals.map(i => (root + i) % 12))
+  const flatKey      = usesFlatEnharmonic(root, patternType)
+  const names        = flatKey ? FLAT_NOTE_NAMES : NOTE_NAMES
+  const degreeNames  = intervals.map(i => names[(root + i) % 12])
+  if (mode === 'scales') degreeNames.push(names[root])
+  const noteList     = degreeNames.join(' – ')
+  const patternLabel = mode === 'scales'
+    ? `${ROOT_NAMES[root]} ${patternType} Scale`
+    : `${ROOT_NAMES[root]} ${patternType}`
+
   useEffect(() => {
     if (instrument !== 'piano') return
     const el = pianoScrollRef.current
@@ -135,7 +147,36 @@ export default function Scales() {
       audioCtxRef.current = new AudioContext()
     }
     const ctx = audioCtxRef.current
-    ctx.state === 'suspended' ? ctx.resume().then(() => playNote(midi, ctx)) : playNote(midi, ctx)
+    const play = () => {
+      if (chordMode && mode === 'chords') {
+        // Root at or to the left of the pressed note (nearest below)
+        const semAbove = ((midi - root) % 12 + 12) % 12
+        const baseRoot = midi - semAbove
+        intervals.forEach(interval => playNote(baseRoot + interval, ctx))
+      } else {
+        playNote(midi, ctx)
+      }
+    }
+    ctx.state === 'suspended' ? ctx.resume().then(play) : play()
+  }
+
+  function getKeyClass(midi: number): string {
+    const pc = midi % 12
+    if (pc === root) return ' lit-root'
+    if (noteSet.has(pc)) return ' lit-scale'
+    return ''
+  }
+
+  function getNoteDisplay(midi: number): NoteStyle | null {
+    const pc = midi % 12
+    if (!noteSet.has(pc)) return null
+    const isRoot = pc === root
+    return {
+      fill:      isRoot ? '#4ade80' : 'rgba(255,255,255,0.14)',
+      stroke:    isRoot ? 'rgba(74,222,128,0.7)' : 'rgba(255,255,255,0.45)',
+      labelFill: isRoot ? '#000' : '#fff',
+      label:     names[pc],
+    }
   }
 
   return (
@@ -147,7 +188,13 @@ export default function Scales() {
           {(['scales', 'chords'] as Mode[]).map(m => (
             <button key={m}
               className={`seg-btn${mode === m ? ' active' : ''}`}
-              onClick={() => setMode(m)}
+              onClick={() => {
+                const avail = m === 'scales' ? SCALE_INTERVALS : CHORD_INTERVALS
+                if (!avail[patternType]) setPatternType('Major')
+                if (m === 'scales') setChordMode(false)
+                setDropdownOpen(false)
+                setMode(m)
+              }}
             >{m === 'scales' ? 'Scales' : 'Chords'}</button>
           ))}
         </div>
@@ -161,23 +208,60 @@ export default function Scales() {
         </div>
       </div>
 
-      {/* ── Pattern type (Major / Minor) ─────────────────────── */}
+      {/* ── Pattern type dropdown + chord mode toggle ──────────── */}
       <div className="scale-type-row">
-        {Object.keys(mode === 'scales' ? SCALE_INTERVALS : CHORD_INTERVALS).map(t => (
-          <button key={t}
-            className={`scale-type-btn${patternType === t ? ' active' : ''}`}
-            onClick={() => setPatternType(t)}
-          >{t}</button>
-        ))}
+        <div className="pattern-dropdown" ref={dropdownRef}>
+          <button
+            className={`pattern-trigger${dropdownOpen ? ' open' : ''}`}
+            onClick={() => setDropdownOpen(v => !v)}
+          >
+            <span>{mode === 'scales' ? (SCALE_DISPLAY_NAMES[patternType] ?? patternType) : patternType}</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden>
+              <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.6"
+                strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {dropdownOpen && (
+            <div className="pattern-menu">
+              {mode === 'scales' ? (
+                SCALE_GROUPS.map(group => (
+                  <div key={group.label}>
+                    <div className="pattern-group-label">{group.label}</div>
+                    {group.types.map(t => (
+                      <button key={t}
+                        className={`pattern-item${patternType === t ? ' active' : ''}`}
+                        onClick={() => { setPatternType(t); setDropdownOpen(false) }}
+                      >{SCALE_DISPLAY_NAMES[t] ?? t}</button>
+                    ))}
+                  </div>
+                ))
+              ) : (
+                CHORD_GROUPS.map(group => (
+                  <div key={group.label}>
+                    <div className="pattern-group-label">{group.label}</div>
+                    {group.types.map(t => (
+                      <button key={t}
+                        className={`pattern-item${patternType === t ? ' active' : ''}`}
+                        onClick={() => { setPatternType(t); setDropdownOpen(false) }}
+                      >{t}</button>
+                    ))}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
       </div>
 
       {/* ── Root note picker ─────────────────────────────────── */}
       <div className="root-picker">
-        {NOTE_NAMES.map((note, i) => (
-          <button key={i}
-            className={`root-btn${root === i ? ' active' : ''}`}
-            onClick={() => setRoot(i)}
-          >{note}</button>
+        {PC_FROM_A.map(pc => (
+          <button key={pc}
+            className={`root-btn${root === pc ? ' active' : ''}`}
+            onClick={() => setRoot(pc)}
+          >{ROOT_NAMES[pc]}</button>
         ))}
       </div>
 
@@ -185,6 +269,9 @@ export default function Scales() {
       <div className="scale-info">
         <span className="scale-title">{patternLabel}</span>
         <span className="scale-notes-text">{noteList}</span>
+        {mode === 'scales' && SCALE_DESCRIPTIONS[patternType] && (
+          <span className="scale-description">{SCALE_DESCRIPTIONS[patternType]}</span>
+        )}
         <div className="scale-legend">
           <span className="legend-item">
             <svg width="14" height="14"><circle cx="7" cy="7" r="6" fill="#4ade80" /></svg>
@@ -197,118 +284,21 @@ export default function Scales() {
             </svg>
             {mode === 'chords' ? 'Chord tone' : 'Scale note'}
           </span>
+          {mode === 'chords' && (
+            <label className="chord-mode-label">
+              <span className="labels-toggle-text">Chord mode</span>
+              <div className={`toggle-track${chordMode ? ' on' : ''}`}
+                onClick={() => setChordMode(v => !v)}>
+                <div className="toggle-knob" />
+              </div>
+            </label>
+          )}
         </div>
       </div>
 
       {/* ── Guitar fretboard ─────────────────────────────────── */}
       {instrument === 'guitar' && (
-        <>
-          <div className="fretboard-scroll">
-            <svg viewBox={`0 0 ${FB_W} ${FB_H}`} width={FB_W} height={FB_H}>
-
-              {/* Fretboard body */}
-              <rect x={NUT_X} y={TOP_PAD - 6}
-                width={NUT_W + NUM_FRETS * FRET_W}
-                height={(NUM_STRINGS - 1) * STRING_H + 12}
-                fill="rgba(255,255,255,0.025)" rx="2" />
-
-              {/* Position marker dots */}
-              {Array.from(MARKER_FRETS).sort((a, b) => a - b).map(fret => {
-                const cx  = fretX(fret)
-                const mid = strY(0) + ((NUM_STRINGS - 1) * STRING_H) / 2
-                return fret === 12 ? (
-                  <g key={fret}>
-                    <circle cx={cx} cy={strY(1)} r="4.5" fill="rgba(255,255,255,0.1)" />
-                    <circle cx={cx} cy={strY(NUM_STRINGS - 2)} r="4.5" fill="rgba(255,255,255,0.1)" />
-                  </g>
-                ) : (
-                  <circle key={fret} cx={cx} cy={mid} r="4.5" fill="rgba(255,255,255,0.1)" />
-                )
-              })}
-
-              {/* Fret number labels */}
-              {Array.from({ length: NUM_FRETS }, (_, i) => i + 1).map(fret => (
-                <text key={fret}
-                  x={fretX(fret)} y={TOP_PAD - 10}
-                  textAnchor="middle" fontSize="9"
-                  fill={MARKER_FRETS.has(fret) ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)'}
-                  style={{ userSelect: 'none' }}
-                >{fret}</text>
-              ))}
-
-              {/* String lines */}
-              {OPEN_STRINGS.map((_, si) => (
-                <line key={si}
-                  x1={NUT_X} y1={strY(si)} x2={FB_W - 8} y2={strY(si)}
-                  stroke="rgba(255,255,255,0.3)"
-                  strokeWidth={0.8 + si * 0.32}
-                />
-              ))}
-
-              {/* Nut */}
-              <rect x={NUT_X} y={TOP_PAD - 6}
-                width={NUT_W} height={(NUM_STRINGS - 1) * STRING_H + 12}
-                fill="rgba(255,255,255,0.6)" rx="1" />
-
-              {/* Fret lines */}
-              {Array.from({ length: NUM_FRETS }, (_, fi) => (
-                <line key={fi}
-                  x1={NUT_X + NUT_W + (fi + 1) * FRET_W} y1={TOP_PAD - 4}
-                  x2={NUT_X + NUT_W + (fi + 1) * FRET_W} y2={TOP_PAD + (NUM_STRINGS - 1) * STRING_H + 4}
-                  stroke="rgba(255,255,255,0.18)" strokeWidth="1"
-                />
-              ))}
-
-              {/* Note circles — visual only */}
-              {OPEN_STRINGS.map((openMidi, si) =>
-                Array.from({ length: NUM_FRETS + 1 }, (_, fret) => {
-                  const midi = openMidi + fret
-                  const pc   = midi % 12
-                  if (!noteSet.has(pc)) return null
-                  const isRoot = pc === root
-                  const cx = fretX(fret)
-                  const cy = strY(si)
-                  return (
-                    <g key={fret}>
-                      <circle cx={cx} cy={cy} r={CIRCLE_R}
-                        fill={isRoot ? '#4ade80' : 'rgba(255,255,255,0.14)'}
-                        stroke={isRoot ? 'rgba(74,222,128,0.7)' : 'rgba(255,255,255,0.45)'}
-                        strokeWidth="1.5"
-                      />
-                      <text x={cx} y={cy + 4}
-                        textAnchor="middle" fontSize="9" fontWeight="700"
-                        fill={isRoot ? '#000' : '#fff'}
-                        style={{ userSelect: 'none', pointerEvents: 'none' }}
-                      >{NOTE_NAMES[pc]}</text>
-                    </g>
-                  )
-                })
-              )}
-
-              {/* Transparent hit areas — ALL string × fret positions playable */}
-              {OPEN_STRINGS.map((openMidi, si) =>
-                Array.from({ length: NUM_FRETS + 1 }, (_, fret) => {
-                  const midi = openMidi + fret
-                  const cy   = strY(si)
-                  const x    = fret === 0
-                    ? fretX(0) - CIRCLE_R - 2
-                    : NUT_X + NUT_W + (fret - 1) * FRET_W
-                  const w    = fret === 0 ? CIRCLE_R * 2 + 4 : FRET_W
-                  return (
-                    <rect key={fret}
-                      x={x} y={cy - STRING_H / 2}
-                      width={w} height={STRING_H}
-                      fill="transparent"
-                      style={{ cursor: 'pointer' }}
-                      onPointerDown={() => press(midi)}
-                    />
-                  )
-                })
-              )}
-            </svg>
-          </div>
-          <div className="string-hint">High E · B · G · D · A · Low E &nbsp;·&nbsp; Standard tuning</div>
-        </>
+        <Fretboard onPress={press} getNoteDisplay={getNoteDisplay} showLabels />
       )}
 
       {/* ── Piano ────────────────────────────────────────────── */}
@@ -318,54 +308,18 @@ export default function Scales() {
             <label className="labels-toggle">
               <span className="labels-toggle-text">Note labels</span>
               <div className={`toggle-track${showLabels ? ' on' : ''}`}
-                onClick={() => setShowLabels(v => !v)}
-              >
+                onClick={() => setShowLabels(v => !v)}>
                 <div className="toggle-knob" />
               </div>
             </label>
           </div>
 
           <div className="piano-wrap">
-          <div className="piano-scroll" ref={pianoScrollRef}>
-            <div className="piano-spacer" />
-            <div className="piano-keys" style={{ width: PIANO_W }}>
-              {KEYS.filter(k => !k.black).map(k => {
-                const pc      = k.midi % 12
-                const isRoot  = pc === root
-                const inScale = noteSet.has(pc)
-                const cls     = isRoot ? ' lit-root' : inScale ? ' lit-scale' : ''
-                return (
-                  <div key={k.midi}
-                    className={`pkey white${cls}`}
-                    style={{ left: k.left, width: WHITE_W - 1, height: WHITE_H }}
-                    onPointerDown={() => press(k.midi)}
-                  >
-                    {showLabels && (
-                      <span className="key-label-white">{k.note}{k.octave}</span>
-                    )}
-                  </div>
-                )
-              })}
-              {KEYS.filter(k => k.black).map(k => {
-                const pc      = k.midi % 12
-                const isRoot  = pc === root
-                const inScale = noteSet.has(pc)
-                const cls     = isRoot ? ' lit-root' : inScale ? ' lit-scale' : ''
-                return (
-                  <div key={k.midi}
-                    className={`pkey black${cls}`}
-                    style={{ left: k.left, width: BLACK_W, height: BLACK_H }}
-                    onPointerDown={() => press(k.midi)}
-                  >
-                    {showLabels && (
-                      <span className="key-label-black">{k.note}</span>
-                    )}
-                  </div>
-                )
-              })}
+            <div className="piano-scroll" ref={pianoScrollRef}>
+              <div className="piano-spacer" />
+              <Piano onPress={press} getKeyClass={getKeyClass} showLabels={showLabels} />
+              <div className="piano-spacer" />
             </div>
-            <div className="piano-spacer" />
-          </div>
           </div>
         </>
       )}

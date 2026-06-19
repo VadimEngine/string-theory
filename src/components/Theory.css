@@ -6,6 +6,44 @@
   overflow: hidden;
 }
 
+/* ── Sub-tabs ────────────────────────────────────────────────── */
+.theory-tabs {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  padding: 3px;
+  margin: 10px 16px 0;
+  width: fit-content;
+  align-self: center;
+}
+
+.theory-tab-btn {
+  padding: 5px 22px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.theory-tab-btn.active {
+  background: rgba(74, 222, 128, 0.18);
+  color: #4ade80;
+}
+
+/* ── Instrument selector row ─────────────────────────────────── */
+.theory-instrument-row {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  padding: 8px 16px 0;
+}
+
 /* ── Staff / sheet area ──────────────────────────────────────── */
 .sheet-area {
   flex-shrink: 0;
@@ -26,11 +64,10 @@
 
 .note-readout {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 3px;
   height: 52px;
   justify-content: center;
-  align-items: center;
 }
 
 .readout-name {
@@ -61,6 +98,7 @@
   align-items: center;
   justify-content: flex-end;
   padding: 8px 16px;
+  min-height: 40px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -77,7 +115,6 @@
   color: rgba(255, 255, 255, 0.5);
 }
 
-/* Toggle track */
 .toggle-track {
   position: relative;
   width: 38px;
@@ -89,9 +126,7 @@
   flex-shrink: 0;
 }
 
-.toggle-track.on {
-  background: #4ade80;
-}
+.toggle-track.on { background: #4ade80; }
 
 .toggle-knob {
   position: absolute;
@@ -102,140 +137,72 @@
   background: #fff;
   border-radius: 50%;
   transition: transform 0.2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.toggle-track.on .toggle-knob {
-  transform: translateX(16px);
-}
+.toggle-track.on .toggle-knob { transform: translateX(16px); }
 
-/* ── Piano scroll container ──────────────────────────────────── */
-.piano-scroll {
+/* ── Piano wrap — fills remaining space, provides edge fades ─── */
+.theory-piano-wrap {
   flex: 1;
   min-height: 0;
+  position: relative;
+}
+
+.theory-piano-wrap::before,
+.theory-piano-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 20px;
+  width: 20px;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.theory-piano-wrap::before {
+  left: 0;
+  background: linear-gradient(to right, #111 0%, transparent 100%);
+}
+
+.theory-piano-wrap::after {
+  right: 0;
+  background: linear-gradient(to left, #111 0%, transparent 100%);
+}
+
+/* ── Piano scroll (scoped to .theory) ───────────────────────── */
+.theory .piano-scroll {
+  height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
-  padding: 16px 16px 20px;
+  padding: 16px 0 20px;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
   display: flex;
   align-items: center;
 }
 
-.piano-scroll::-webkit-scrollbar        { height: 3px; }
-.piano-scroll::-webkit-scrollbar-track  { background: transparent; }
-.piano-scroll::-webkit-scrollbar-thumb  {
-  background: rgba(255, 255, 255, 0.12);
-  border-radius: 2px;
+.theory .piano-scroll::-webkit-scrollbar        { height: 5px; }
+.theory .piano-scroll::-webkit-scrollbar-track  { background: rgba(255, 255, 255, 0.05); border-radius: 3px; }
+.theory .piano-scroll::-webkit-scrollbar-thumb  {
+  background: rgba(255, 255, 255, 0.28);
+  border-radius: 3px;
 }
 
-/* ── Piano key canvas ────────────────────────────────────────── */
-.piano-keys {
-  position: relative;
-  height: 132px;
+.theory .piano-spacer {
+  min-width: 20px;
   flex-shrink: 0;
-  user-select: none;
 }
 
-/* ── Shared key base ─────────────────────────────────────────── */
-.pkey {
-  position: absolute;
-  cursor: pointer;
-  border-radius: 0 0 5px 5px;
-  box-sizing: border-box;
-  transition: background 0.06s;
-}
+/* ── Piano key state classes (Theory-specific) ───────────────── */
+.pkey.white.lit       { background: #4ade80; }
+.pkey.black.lit       { background: #22c55e; }
 
-/* ── White keys ──────────────────────────────────────────────── */
-.pkey.white {
-  background: #e6e6e6;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-top: none;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 4px;
-  z-index: 1;
-}
+.pkey.white.lit .key-label-white { color: rgba(0, 0, 0, 0.6); }
+.pkey.black.lit .key-label-black { color: rgba(255, 255, 255, 0.95); }
 
-.pkey.white:active { background: #b8f5ce; }
-.pkey.white.lit    { background: #4ade80; }
-
-/* ── Black keys ──────────────────────────────────────────────── */
-.pkey.black {
-  background: #1c1c1c;
-  border: 1px solid rgba(0, 0, 0, 0.55);
-  border-top: none;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  padding-bottom: 4px;
-  z-index: 2;
-}
-
-.pkey.black:active { background: #16a34a; }
-.pkey.black.lit    { background: #22c55e; }
-
-/* ── Key labels ──────────────────────────────────────────────── */
-.key-label-white {
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(0, 0, 0, 0.72);
-  pointer-events: none;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.pkey.white.lit .key-label-white {
-  color: rgba(0, 0, 0, 0.6);
-}
-
-.key-label-black {
-  font-size: 8px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.88);
-  pointer-events: none;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.pkey.black.lit .key-label-black {
-  color: rgba(255, 255, 255, 0.95);
-}
-
-/* ── Quiz correct-answer highlight ───────────────────────────── */
 .pkey.white.quiz-correct { background: #4ade80; }
 .pkey.black.quiz-correct { background: #22c55e; }
-
-/* ── Theory sub-tabs ─────────────────────────────────────────── */
-.theory-tabs {
-  flex-shrink: 0;
-  display: flex;
-  gap: 0;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 999px;
-  padding: 3px;
-  margin: 10px 16px 0;
-  width: fit-content;
-  align-self: center;
-}
-
-.theory-tab-btn {
-  padding: 5px 22px;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-}
-
-.theory-tab-btn.active {
-  background: rgba(74, 222, 128, 0.18);
-  color: #4ade80;
-}
 
 /* ── Quiz layout ─────────────────────────────────────────────── */
 .quiz-layout {
@@ -246,7 +213,6 @@
   overflow: hidden;
 }
 
-/* Note selector pills */
 .quiz-note-picker {
   flex-shrink: 0;
   display: flex;
@@ -275,7 +241,6 @@
   color: #4ade80;
 }
 
-/* Treble-only staff for quiz */
 .quiz-staff-area {
   flex-shrink: 0;
   display: flex;
@@ -291,7 +256,6 @@
   overflow: visible;
 }
 
-/* Score + feedback + button row */
 .quiz-info-row {
   flex-shrink: 0;
   display: flex;
@@ -315,9 +279,7 @@
   letter-spacing: 0.02em;
 }
 
-.quiz-feedback.wrong {
-  color: #f87171;
-}
+.quiz-feedback.wrong { color: #f87171; }
 
 .quiz-start-btn {
   padding: 6px 18px;
@@ -332,12 +294,4 @@
   white-space: nowrap;
 }
 
-.quiz-start-btn:active {
-  background: rgba(74, 222, 128, 0.28);
-}
-
-/* Quiz piano takes up remaining space */
-.quiz-piano-scroll {
-  flex: 1;
-  min-height: 0;
-}
+.quiz-start-btn:active { background: rgba(74, 222, 128, 0.28); }
