@@ -137,7 +137,15 @@ export default function Scales() {
   useEffect(() => {
     if (instrument !== 'piano') return
     const el = pianoScrollRef.current
-    if (el) el.scrollLeft = MIDDLE_C.left + 24 - el.clientWidth / 2 + WHITE_W / 2
+    if (!el) return
+    el.scrollLeft = MIDDLE_C.left + 24 - el.clientWidth / 2 + WHITE_W / 2
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaX !== 0) return
+      e.preventDefault()
+      el.scrollLeft += e.deltaY
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
   }, [instrument])
 
   useEffect(() => () => { audioCtxRef.current?.close() }, [])

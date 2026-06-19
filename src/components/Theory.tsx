@@ -89,7 +89,15 @@ export default function Theory() {
   useEffect(() => {
     if (theoryTab !== 'learn' || instrument !== 'piano') return
     const el = learnScrollRef.current
-    if (el) el.scrollLeft = MIDDLE_C.left - el.clientWidth / 2 + WHITE_W / 2
+    if (!el) return
+    el.scrollLeft = MIDDLE_C.left - el.clientWidth / 2 + WHITE_W / 2
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaX !== 0) return
+      e.preventDefault()
+      el.scrollLeft += e.deltaY
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
   }, [theoryTab, instrument])
 
   function pressLearn(midi: number) {
@@ -129,7 +137,15 @@ export default function Theory() {
   useEffect(() => {
     if (theoryTab !== 'quiz' || instrument !== 'piano') return
     const el = quizScrollRef.current
-    if (el) el.scrollLeft = MIDDLE_C.left - el.clientWidth / 2 + WHITE_W / 2
+    if (!el) return
+    el.scrollLeft = MIDDLE_C.left - el.clientWidth / 2 + WHITE_W / 2
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaX !== 0) return
+      e.preventDefault()
+      el.scrollLeft += e.deltaY
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
   }, [theoryTab, instrument])
 
   function toggleNote(note: string) {

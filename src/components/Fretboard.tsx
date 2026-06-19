@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useEffect } from 'react'
 import {
   NOTE_NAMES,
   OPEN_STRINGS, NUM_FRETS, MARKER_FRETS,
@@ -24,6 +24,19 @@ interface FretboardProps {
 export default function Fretboard({ onPress, getNoteDisplay, showLabels = true }: FretboardProps) {
   const draggingRef = useRef(false)
   const lastMidiRef = useRef<number | null>(null)
+  const scrollRef   = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaX !== 0) return
+      e.preventDefault()
+      el.scrollLeft += e.deltaY
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
 
   function moveDrag(e: React.PointerEvent) {
     if (!draggingRef.current) return
@@ -38,7 +51,7 @@ export default function Fretboard({ onPress, getNoteDisplay, showLabels = true }
 
   return (
     <>
-      <div className="fretboard-scroll">
+      <div className="fretboard-scroll" ref={scrollRef}>
         <svg viewBox={`0 0 ${FB_W} ${FB_H}`} width={FB_W} height={FB_H}
           style={{ touchAction: 'none', display: 'block' }}
           onPointerMove={moveDrag}
