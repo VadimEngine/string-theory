@@ -11,7 +11,7 @@ const CHORD_GROUPS = [
 ]
 
 // ── Pattern intervals ─────────────────────────────────────────
-const SCALE_INTERVALS: Record<string, number[]> = {
+export const SCALE_INTERVALS: Record<string, number[]> = {
   // Pentatonic & Blues
   'Major Pentatonic': [0, 2, 4, 7, 9],
   'Minor Pentatonic': [0, 3, 5, 7, 10],
@@ -42,7 +42,7 @@ const SCALE_GROUPS = [
   { label: 'Symmetric',          types: ['Whole Tone', 'Diminished', 'Chromatic'] },
 ]
 
-const SCALE_DISPLAY_NAMES: Record<string, string> = {
+export const SCALE_DISPLAY_NAMES: Record<string, string> = {
   'Major Pentatonic': 'Major Pentatonic',
   'Minor Pentatonic': 'Minor Pentatonic',
   'Blues':            'Blues',
@@ -81,7 +81,7 @@ const SCALE_DESCRIPTIONS: Record<string, string> = {
   'Diminished':       '8-note alternating whole & half steps',
   'Chromatic':        'All 12 semitones',
 }
-const CHORD_INTERVALS: Record<string, number[]> = {
+export const CHORD_INTERVALS: Record<string, number[]> = {
   'Major':       [0, 4, 7],
   'Minor':       [0, 3, 7],
   'Sus2':        [0, 2, 7],

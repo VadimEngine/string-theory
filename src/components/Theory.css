@@ -295,3 +295,373 @@
 }
 
 .quiz-start-btn:active { background: rgba(74, 222, 128, 0.28); }
+
+/* ── ET Learn ────────────────────────────────────────────────── */
+.et-learn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 16px 28px;
+  overflow-y: auto;
+}
+
+.et-learn-section {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.et-learn-root-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.et-learn-root-btn {
+  padding: 5px 0;
+  width: 42px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.et-learn-root-btn.active {
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.4);
+  color: #4ade80;
+}
+
+.et-learn-select {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.88rem;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.4)' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.et-learn-select option {
+  background: #1a1a2e;
+  color: #e0e0e0;
+}
+
+.et-learn-notes {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.04em;
+  text-align: center;
+  min-height: 1.4em;
+}
+
+/* ── Ear Training ────────────────────────────────────────────── */
+.et-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 14px 16px 28px;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.et-mode-tabs {
+  align-self: stretch;
+  display: flex;
+  gap: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  padding: 3px;
+}
+
+.et-mode-btn {
+  flex: 1;
+  padding: 5px 14px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+
+.et-mode-btn.active {
+  background: rgba(74, 222, 128, 0.18);
+  color: #4ade80;
+}
+
+.et-pool-section {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.et-pool-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.28);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.et-pool-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.et-pool-btn {
+  padding: 4px 9px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.13s, border-color 0.13s, color 0.13s;
+}
+
+.et-pool-btn.active {
+  background: rgba(74, 222, 128, 0.1);
+  border-color: rgba(74, 222, 128, 0.35);
+  color: #4ade80;
+}
+
+.et-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.et-score-text {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #4ade80;
+  min-width: 56px;
+  text-align: center;
+}
+
+.et-replay-btn {
+  padding: 5px 14px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.et-replay-btn:hover { background: rgba(255, 255, 255, 0.12); }
+
+.et-prompt {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.38);
+  letter-spacing: 0.02em;
+  text-align: center;
+  min-height: 1.4em;
+  margin: 0;
+}
+
+.et-prompt.correct { color: #4ade80; font-weight: 600; }
+.et-prompt.wrong   { color: #f87171; font-weight: 600; }
+
+.et-play-btn {
+  padding: 13px 36px;
+  background: rgba(74, 222, 128, 0.14);
+  border: 1px solid rgba(74, 222, 128, 0.35);
+  border-radius: 999px;
+  color: #4ade80;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.et-play-btn:active { background: rgba(74, 222, 128, 0.28); }
+
+.et-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.et-choice-btn {
+  padding: 13px 8px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.86rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, opacity 0.15s;
+}
+
+.et-choice-btn:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.et-choice-btn:disabled { cursor: default; }
+
+.et-choice-btn.et-correct {
+  background: rgba(74, 222, 128, 0.18);
+  border-color: rgba(74, 222, 128, 0.5);
+  color: #4ade80;
+  font-weight: 600;
+}
+
+.et-choice-btn.et-missed { opacity: 0.3; }
+
+.et-next-btn {
+  padding: 9px 28px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.et-next-btn:hover { background: rgba(255, 255, 255, 0.14); }
+
+/* ── Roman Numerals ──────────────────────────────────────────────── */
+.rn-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 16px 28px;
+  overflow-y: auto;
+}
+
+.rn-key-section {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.rn-key-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rn-key-btn {
+  padding: 5px 0;
+  width: 42px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.rn-key-btn.active {
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.4);
+  color: #4ade80;
+}
+
+.rn-grid {
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.rn-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 8px 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.13s, border-color 0.13s, transform 0.1s;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.rn-card:active { transform: scale(0.97); }
+
+/* Major: green tint */
+.rn-card.rn-major { border-color: rgba(74, 222, 128, 0.18); }
+.rn-card.rn-major .rn-roman { color: #4ade80; }
+.rn-card.rn-major.rn-active {
+  background: rgba(74, 222, 128, 0.14);
+  border-color: rgba(74, 222, 128, 0.5);
+}
+
+/* Minor: blue tint */
+.rn-card.rn-minor { border-color: rgba(96, 165, 250, 0.18); }
+.rn-card.rn-minor .rn-roman { color: #60a5fa; }
+.rn-card.rn-minor.rn-active {
+  background: rgba(96, 165, 250, 0.14);
+  border-color: rgba(96, 165, 250, 0.5);
+}
+
+/* Diminished: red tint */
+.rn-card.rn-dim { border-color: rgba(248, 113, 113, 0.18); }
+.rn-card.rn-dim .rn-roman { color: #f87171; }
+.rn-card.rn-dim.rn-active {
+  background: rgba(248, 113, 113, 0.14);
+  border-color: rgba(248, 113, 113, 0.5);
+}
+
+.rn-roman {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.rn-chord-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.rn-chord-notes {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.02em;
+}
