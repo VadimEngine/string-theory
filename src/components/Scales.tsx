@@ -5,7 +5,7 @@ import Fretboard, { NoteStyle } from './Fretboard'
 import './Scales.css'
 
 // ── Chord groups for the dropdown ────────────────────────────
-const CHORD_GROUPS = [
+export const CHORD_GROUPS = [
   { label: 'Triads',   types: ['Major', 'Minor', 'Sus2', 'Sus4', 'Diminished'] },
   { label: 'Extended', types: ['Dominant 7', 'Major 7', 'Minor 7', 'Add9'] },
 ]
@@ -35,7 +35,7 @@ export const SCALE_INTERVALS: Record<string, number[]> = {
   'Chromatic':        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11],
 }
 
-const SCALE_GROUPS = [
+export const SCALE_GROUPS = [
   { label: 'Pentatonic & Blues', types: ['Major Pentatonic', 'Minor Pentatonic', 'Blues'] },
   { label: 'Diatonic Modes',     types: ['Major', 'Minor', 'Dorian', 'Phrygian', 'Lydian', 'Mixolydian', 'Locrian'] },
   { label: 'Other Scales',       types: ['Harmonic Minor', 'Melodic Minor', 'Hungarian Minor', 'Double Harmonic'] },
@@ -269,6 +269,7 @@ export default function Scales() {
           <button key={pc}
             className={`root-btn${root === pc ? ' active' : ''}`}
             onClick={() => setRoot(pc)}
+            translate="no"
           >{ROOT_NAMES[pc]}</button>
         ))}
       </div>
@@ -276,7 +277,7 @@ export default function Scales() {
       {/* ── Scale / chord info ───────────────────────────────── */}
       <div className="scale-info">
         <span className="scale-title">{patternLabel}</span>
-        <span className="scale-notes-text">{noteList}</span>
+        <span className="scale-notes-text" translate="no">{noteList}</span>
         {mode === 'scales' && SCALE_DESCRIPTIONS[patternType] && (
           <span className="scale-description">{SCALE_DESCRIPTIONS[patternType]}</span>
         )}

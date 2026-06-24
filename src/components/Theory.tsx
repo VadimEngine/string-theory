@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { IS_BLACK, KEYS, MIDDLE_C, WHITE_W, NOTE_NAMES, playNote, Key, ROOT_NAMES_FROM_A, ROOT_NAME_TO_PC } from '../music'
+import { IS_BLACK, KEYS, MIDDLE_C, WHITE_W, NOTE_NAMES, FLAT_NOTE_NAMES, playNote, Key, ROOT_NAMES_FROM_A, ROOT_NAME_TO_PC, usesFlatEnharmonic } from '../music'
 import Piano from './Piano'
 import Fretboard, { NoteStyle } from './Fretboard'
-import { SCALE_INTERVALS, CHORD_INTERVALS, SCALE_DISPLAY_NAMES } from './Scales'
+import { SCALE_INTERVALS, CHORD_INTERVALS, SCALE_DISPLAY_NAMES, SCALE_GROUPS, CHORD_GROUPS } from './Scales'
 import './Theory.css'
 
 // ── Staff note maths ──────────────────────────────────────────────
@@ -119,6 +119,10 @@ export default function Theory() {
   const [etLearnMode, setEtLearnMode] = useState<'scale' | 'chord'>('scale')
   const [etLearnRoot, setEtLearnRoot] = useState('C')
   const [etLearnType, setEtLearnType] = useState('Major')
+  const [etLearnDropOpen, setEtLearnDropOpen] = useState(false)
+  const etLearnDropRef = useRef<HTMLDivElement>(null)
+
+  const closeEtLearnDrop = useCallback(() => setEtLearnDropOpen(false), [])
 
   // ── ET Quiz state ─────────────────────────────────────────────
   const [etMode, setEtMode]           = useState<EtMode>('note')
@@ -133,6 +137,16 @@ export default function Theory() {
   const [etWasCorrect, setEtWasCorrect] = useState(false)
 
   useEffect(() => () => { audioCtxRef.current?.close() }, [])
+
+  useEffect(() => {
+    if (!etLearnDropOpen) return
+    function onOutside(e: PointerEvent) {
+      if (etLearnDropRef.current && !etLearnDropRef.current.contains(e.target as Node))
+        closeEtLearnDrop()
+    }
+    document.addEventListener('pointerdown', onOutside)
+    return () => document.removeEventListener('pointerdown', onOutside)
+  }, [etLearnDropOpen, closeEtLearnDrop])
 
   function getCtx(): AudioContext {
     if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
@@ -267,6 +281,7 @@ export default function Theory() {
   // ── ET Learn functions ────────────────────────────────────────
   function switchEtLearnMode(mode: 'scale' | 'chord') {
     setEtLearnMode(mode)
+    setEtLearnDropOpen(false)
     const pool = mode === 'scale' ? SCALE_INTERVALS : CHORD_INTERVALS
     if (!pool[etLearnType]) setEtLearnType('Major')
   }
@@ -418,7 +433,12 @@ export default function Theory() {
   // ── ET Learn computed values ──────────────────────────────────
   const etLearnPc        = ROOT_NAME_TO_PC[etLearnRoot] ?? 0
   const etLearnIntervals = (etLearnMode === 'scale' ? SCALE_INTERVALS : CHORD_INTERVALS)[etLearnType] ?? []
-  const etLearnNotes     = etLearnIntervals.map(iv => NOTE_NAMES[(etLearnPc + iv) % 12])
+  const etLearnFlat      = usesFlatEnharmonic(etLearnPc, etLearnType)
+  const etLearnNoteNames = etLearnFlat ? FLAT_NOTE_NAMES : NOTE_NAMES
+  const etLearnNotes     = [
+    ...etLearnIntervals.map(iv => etLearnNoteNames[(etLearnPc + iv) % 12]),
+    ...(etLearnMode === 'scale' ? [etLearnNoteNames[etLearnPc]] : []),
+  ]
   const etLearnLabel     = `${etLearnRoot} ${SCALE_DISPLAY_NAMES[etLearnType] ?? etLearnType}`
 
   // ── Staff display values ──────────────────────────────────────
@@ -540,7 +560,8 @@ export default function Theory() {
               {ALL_NOTES.map(note => (
                 <button key={note}
                   className={`quiz-note-btn${selectedNotes.has(note) ? ' active' : ''}`}
-                  onClick={() => toggleNote(note)}>{note}</button>
+                  onClick={() => toggleNote(note)}
+                  translate="no">{note}</button>
               ))}
             </div>
 
@@ -636,32 +657,64 @@ export default function Theory() {
                   {ROOT_NAMES_FROM_A.map(name => (
                     <button key={name}
                       className={`et-learn-root-btn${etLearnRoot === name ? ' active' : ''}`}
-                      onClick={() => setEtLearnRoot(name)}>{name}</button>
+                      onClick={() => setEtLearnRoot(name)}
+                      translate="no">{name}</button>
                   ))}
                 </div>
               </div>
 
-              {/* Type select */}
+              {/* Type dropdown */}
               <div className="et-learn-section">
                 <span className="et-pool-label">
                   {etLearnMode === 'scale' ? 'Scale' : 'Chord'}
                 </span>
-                <select className="et-learn-select"
-                  value={etLearnType}
-                  onChange={e => setEtLearnType(e.target.value)}>
-                  {etLearnMode === 'scale'
-                    ? Object.keys(SCALE_INTERVALS).map(t => (
-                        <option key={t} value={t}>{SCALE_DISPLAY_NAMES[t] ?? t}</option>
-                      ))
-                    : Object.keys(CHORD_INTERVALS).map(t => (
-                        <option key={t} value={t}>{t}</option>
-                      ))
-                  }
-                </select>
+                <div className="pattern-dropdown" ref={etLearnDropRef}
+                  style={{ display: 'block' }}>
+                  <button
+                    className={`pattern-trigger${etLearnDropOpen ? ' open' : ''}`}
+                    style={{ width: '100%' }}
+                    onClick={() => setEtLearnDropOpen(v => !v)}>
+                    <span>{SCALE_DISPLAY_NAMES[etLearnType] ?? etLearnType}</span>
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden>
+                      <path d="M1 1l4 4 4-4" stroke="currentColor" strokeWidth="1.6"
+                        strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </button>
+                  {etLearnDropOpen && (
+                    <div className="pattern-menu">
+                      {etLearnMode === 'scale'
+                        ? SCALE_GROUPS.map(group => (
+                            <div key={group.label}>
+                              <div className="pattern-group-label">{group.label}</div>
+                              {group.types.map(t => (
+                                <button key={t}
+                                  className={`pattern-item${etLearnType === t ? ' active' : ''}`}
+                                  onClick={() => { setEtLearnType(t); setEtLearnDropOpen(false) }}>
+                                  {SCALE_DISPLAY_NAMES[t] ?? t}
+                                </button>
+                              ))}
+                            </div>
+                          ))
+                        : CHORD_GROUPS.map(group => (
+                            <div key={group.label}>
+                              <div className="pattern-group-label">{group.label}</div>
+                              {group.types.map(t => (
+                                <button key={t}
+                                  className={`pattern-item${etLearnType === t ? ' active' : ''}`}
+                                  onClick={() => { setEtLearnType(t); setEtLearnDropOpen(false) }}>
+                                  {t}
+                                </button>
+                              ))}
+                            </div>
+                          ))
+                      }
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Note display */}
-              <div className="et-learn-notes">
+              <div className="et-learn-notes" translate="no">
                 {etLearnNotes.join(' – ')}
               </div>
 
@@ -697,7 +750,8 @@ export default function Theory() {
                   {ROOT_NAMES_FROM_A.map(name => (
                     <button key={name}
                       className={`et-pool-btn${etNotePool.has(name) ? ' active' : ''}`}
-                      onClick={() => toggleEtNote(name)}>{name}</button>
+                      onClick={() => toggleEtNote(name)}
+                      translate="no">{name}</button>
                   ))}
                 </div>
               </div>
@@ -806,7 +860,8 @@ export default function Theory() {
                 {ROOT_NAMES_FROM_A.map(name => (
                   <button key={name}
                     className={`rn-key-btn${rnKey === name ? ' active' : ''}`}
-                    onClick={() => setRnKey(name)}>{name}</button>
+                    onClick={() => setRnKey(name)}
+                    translate="no">{name}</button>
                 ))}
               </div>
             </div>
@@ -827,7 +882,8 @@ export default function Theory() {
                 return (
                   <button key={idx}
                     className={`rn-card${colorClass}${rnActive === idx ? ' rn-active' : ''}`}
-                    onClick={() => rnPlay(rootPc, deg.type, idx)}>
+                    onClick={() => rnPlay(rootPc, deg.type, idx)}
+                    translate="no">
                     <span className="rn-roman">{deg.roman}</span>
                     <span className="rn-chord-name">{chordName}</span>
                     <span className="rn-chord-notes">{noteNames}</span>
